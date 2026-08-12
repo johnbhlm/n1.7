@@ -34,10 +34,11 @@ def parse_cli_args() -> Args:
     parser.add_argument(
         "--chunk-transition-mode",
         default=Args.chunk_transition_mode,
-        choices=["none", "blend", "gr00t_rtc"],
+        choices=["none", "blend", "gr00t_rtc", "latency_bezier"],
         help=(
             "none: plain async replacement; blend: client physical-space blend; "
-            "gr00t_rtc: model-side GR00T RTC"
+            "gr00t_rtc: model-side GR00T RTC; latency_bezier: client-side stale "
+            "alignment and Bézier stitching"
         ),
     )
 
@@ -48,6 +49,18 @@ def parse_cli_args() -> Args:
         "--blend-debug",
         action=argparse.BooleanOptionalAction,
         default=Args.blend_debug,
+    )
+    parser.add_argument("--bezier-gamma", type=float, default=Args.bezier_gamma)
+    parser.add_argument("--bezier-sigma", type=float, default=Args.bezier_sigma)
+    parser.add_argument(
+        "--bezier-debug",
+        action=argparse.BooleanOptionalAction,
+        default=Args.bezier_debug,
+    )
+    parser.add_argument(
+        "--bezier-use-actual-state",
+        action=argparse.BooleanOptionalAction,
+        default=Args.bezier_use_actual_state,
     )
 
     parser.add_argument(
@@ -169,6 +182,10 @@ def parse_cli_args() -> Args:
         blend_frozen_steps=parsed.blend_frozen_steps,
         blend_ramp_rate=parsed.blend_ramp_rate,
         blend_debug=parsed.blend_debug,
+        bezier_gamma=parsed.bezier_gamma,
+        bezier_sigma=parsed.bezier_sigma,
+        bezier_debug=parsed.bezier_debug,
+        bezier_use_actual_state=parsed.bezier_use_actual_state,
         gr00t_rtc_overlap_steps=parsed.gr00t_rtc_overlap_steps,
         gr00t_rtc_frozen_steps=parsed.gr00t_rtc_frozen_steps,
         gr00t_rtc_ramp_rate=parsed.gr00t_rtc_ramp_rate,
@@ -178,15 +195,9 @@ def parse_cli_args() -> Args:
         intra_chunk_smoothing_method=parsed.intra_chunk_smoothing_method,
         intra_chunk_smoothing_window=parsed.intra_chunk_smoothing_window,
         intra_chunk_smoothing_polyorder=parsed.intra_chunk_smoothing_polyorder,
-        intra_chunk_smoothing_smooth_gripper=(
-            parsed.intra_chunk_smoothing_smooth_gripper
-        ),
-        intra_chunk_smoothing_preserve_first=(
-            parsed.intra_chunk_smoothing_preserve_first
-        ),
-        intra_chunk_smoothing_preserve_last=(
-            parsed.intra_chunk_smoothing_preserve_last
-        ),
+        intra_chunk_smoothing_smooth_gripper=(parsed.intra_chunk_smoothing_smooth_gripper),
+        intra_chunk_smoothing_preserve_first=(parsed.intra_chunk_smoothing_preserve_first),
+        intra_chunk_smoothing_preserve_last=(parsed.intra_chunk_smoothing_preserve_last),
         intra_chunk_smoothing_debug=parsed.intra_chunk_smoothing_debug,
         enable_done_flag=parsed.enable_done_flag,
         enable_inactive_arm_freeze=parsed.enable_inactive_arm_freeze,
