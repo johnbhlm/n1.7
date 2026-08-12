@@ -1,0 +1,37 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from vla/visual_localization/srv/DebugSaveCameraImage.srv
+// generated code does not contain a copyright notice
+
+
+module vla {
+  module srv {
+    @verbatim (language="comment", text=
+      "请求")
+    struct DebugSaveCameraImage_Request {
+      int32 req_id;
+
+      @verbatim (language="comment", text=
+        "相机照片保存文件名")
+      string head_image_file;
+
+      @verbatim (language="comment", text=
+        "相机照片保存文件名")
+      string left_wrist_image_file;
+
+      @verbatim (language="comment", text=
+        "相机照片保存文件名")
+      string right_wrist_image_file;
+    };
+    @verbatim (language="comment", text=
+      "响应")
+    struct DebugSaveCameraImage_Response {
+      @verbatim (language="comment", text=
+        "0为成功，其它为错误码")
+      int32 result_code;
+
+      @verbatim (language="comment", text=
+        "失败原因")
+      string result_msg;
+    };
+  };
+};

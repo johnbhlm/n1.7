@@ -1,0 +1,18 @@
+# ActionVLA.action
+# 此结构可以用于pick和place，pick和place的action节点名称不同
+
+# 目标：VLA执行指令参数
+string req_id           # 请求ID
+int32 gripper           # 使用手（ 0:任意手，1:left_hand, 2:right_hand）
+string object           # 操作对象（如"apple"）
+int32 target_type       # 目标枚举类型：0-物品，1-人
+string target_location  # 位置描述
+
+---
+# 结果：执行完成返回信息
+int32 result_code      # 0为成功，其它为错误码
+string result_msg      # 失败原因
+---
+# 反馈：执行过程实时状态
+float32 progress       # 进度（0.0~1.0）
+string feedback_msg    # 进度说明

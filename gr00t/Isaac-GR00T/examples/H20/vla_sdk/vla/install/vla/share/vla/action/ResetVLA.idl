@@ -1,0 +1,36 @@
+// generated from rosidl_adapter/resource/action.idl.em
+// with input from vla/visual_localization/action/ResetVLA.action
+// generated code does not contain a copyright notice
+
+
+module vla {
+  module action {
+    @verbatim (language="comment", text=
+      "目标")
+    struct ResetVLA_Goal {
+      string req_id;
+    };
+    @verbatim (language="comment", text=
+      "结果：执行完成返回信息")
+    struct ResetVLA_Result {
+      @verbatim (language="comment", text=
+        "0为成功，其它为错误码")
+      int32 result_code;
+
+      @verbatim (language="comment", text=
+        "失败原因")
+      string result_msg;
+    };
+    @verbatim (language="comment", text=
+      "反馈：执行过程实时状态")
+    struct ResetVLA_Feedback {
+      @verbatim (language="comment", text=
+        "进度（0.0~1.0）")
+      float progress;
+
+      @verbatim (language="comment", text=
+        "进度说明")
+      string feedback_msg;
+    };
+  };
+};

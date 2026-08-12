@@ -1,0 +1,9 @@
+# 请求
+int32 req_id
+string head_image_file          # 相机照片保存文件名
+string left_wrist_image_file    # 相机照片保存文件名
+string right_wrist_image_file   # 相机照片保存文件名
+---
+# 响应
+int32 result_code       # 0为成功，其它为错误码
+string result_msg       # 失败原因

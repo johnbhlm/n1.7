@@ -1,0 +1,682 @@
+﻿
+﻿
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Struct &mdash; User Manual For H10-W SDK</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/toolbar.css?v=8724d423" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=03768ecb" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=0ec76b63"></script>
+      <script src="../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script defer="defer" src="../../_static/toolbar.js?v=fb63e8ae"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Classes" href="class.html" />
+    <link rel="prev" title="Enum" href="enum.html" />
+  
+   
+  <link rel="stylesheet" href="../../_static/toolbar.css">
+  <script defer src="../../_static/toolbar.js"></script>
+
+  
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            User Manual For H10-W SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../introduction.html#id2">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../introduction.html#id3">Platform Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../introduction.html#id4">Coordinate System Definition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../introduction.html#id5">Joint Index and Motion Range</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">installation guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#ubuntu-22-04">Ubuntu 22.04</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#sdk">1. Unpack the SDK package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#id2">2. Set up environment variables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_cpp/index.html">C++ interface description</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api_cpp/humanoid/index.html">humanoid namespace</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api_cpp/humanoid/enum.html">Enum</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/enum.html#humanoid-powerstate">humanoid::PowerState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/enum.html#humanoid-enablestate">humanoid::EnableState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/enum.html#humanoid-controlpolicy">humanoid::ControlPolicy</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api_cpp/humanoid/struct.html">Struct</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/struct.html#humanoid-controllerversion">humanoid::ControllerVersion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/struct.html#humanoid-driverversion">humanoid::DriverVersion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/struct.html#humanoid-monitorversion">humanoid::MonitorVersion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/struct.html#humanoid-robotversion">humanoid::RobotVersion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/struct.html#humanoid-microphonestatus">humanoid::MicrophoneStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/struct.html#humanoid-speakerstatus">humanoid::SpeakerStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/struct.html#humanoid-controllermessageparams">humanoid::ControllerMessageParams</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api_cpp/humanoid/typedef.html">Typedef</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/typedef.html#humanoid-jointtarget">humanoid::JointTarget</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/typedef.html#humanoid-jointlimit">humanoid::JointLimit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/typedef.html#humanoid-jointmaxacc">humanoid::JointMaxAcc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/typedef.html#humanoid-jointmaxvel">humanoid::JointMaxVel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/typedef.html#humanoid-carttransmaxacc">humanoid::CartTransMaxAcc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/typedef.html#humanoid-carttransmaxvel">humanoid::CartTransMaxVel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/typedef.html#humanoid-cartrotamaxacc">humanoid::CartRotaMaxAcc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/typedef.html#humanoid-cartrotamaxvel">humanoid::CartRotaMaxVel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/typedef.html#humanoid-tcpoffsetparams">humanoid::TcpOffsetParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/typedef.html#humanoid-tcppayloadparams">humanoid::TcpPayloadParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/typedef.html#humanoid-jointcontrolparams">humanoid::JointControlParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid/typedef.html#humanoid-cartesiancontrolparams">humanoid::CartesianControlParams</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_cpp/humanoid_h10w/index.html">humanoid::h10w namespace</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api_cpp/humanoid_h10w/enum.html">Enumerations and Joint Index</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/enum.html#h10w-int">H10w Joint Index (int)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/enum.html#humanoid-h10w-cartindex">humanoid::h10w::CartIndex</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html">Struct</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-realtimejointsparams">humanoid::h10w::RealtimeJointsParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-realtimetcpparams">humanoid::h10w::RealtimeTcpParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-lineartarget">humanoid::h10w::LinearTarget</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-tcpposeparams">humanoid::h10w::TcpPoseParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-movemessageparams">humanoid::h10w::MoveMessageParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-errormessageparams">humanoid::h10w::ErrorMessageParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-jointmotorcmd">humanoid::h10w::JointMotorCmd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-wheelmotorcmd">humanoid::h10w::WheelMotorCmd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-jointmotorstate">humanoid::h10w::JointMotorState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-imustate">humanoid::h10w::IMUState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-wheelmotorstate">humanoid::h10w::WheelMotorState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-pcustate">humanoid::h10w::PCUState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-enablestate">humanoid::h10w::EnableState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-lowcmd">humanoid::h10w::LowCmd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-lowstate">humanoid::h10w::LowState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-lrcucmd">humanoid::h10w::LRCUCmd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-lrcustate">humanoid::h10w::LRCUState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/struct.html#humanoid-h10w-bmsstate">humanoid::h10w::BmsState</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api_cpp/humanoid_h10w/class.html">Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/class.html#humanoid-h10w-h10wchassis">humanoid::h10w::H10wChassis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/class.html#humanoid-h10w-h10wmotion">humanoid::h10w::H10wMotion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/class.html#humanoid-h10w-h10wparams">humanoid::h10w::H10wParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/class.html#humanoid-h10w-h10wstatus">humanoid::h10w::H10wStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/class.html#humanoid-h10w-h10wsystem">humanoid::h10w::H10wSystem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api_cpp/humanoid_h10w/class.html#humanoid-h10w-h10wlowlevel">humanoid::h10w::H10wLowLevel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api_cpp/humanoid_h10w/error.html">Error Code List</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Python interface description</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../humanoid/index.html">humanoid_sdk_py module description</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../humanoid/enum.html">Enum</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../humanoid/enum.html#powerstate">PowerState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../humanoid/enum.html#enablestate">EnableState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../humanoid/enum.html#controlpolicy">ControlPolicy</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../humanoid/struct.html">Struct</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../humanoid/struct.html#driverversion">DriverVersion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../humanoid/struct.html#controllerversion">ControllerVersion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../humanoid/struct.html#monitorversion">MonitorVersion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../humanoid/struct.html#robotversion">RobotVersion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../humanoid/struct.html#microphonestatus">MicrophoneStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../humanoid/struct.html#speakerstatus">SpeakerStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../humanoid/struct.html#controllermessageparams">ControllerMessageParams</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">humanoid_sdk_py.h10w module description</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="enum.html">Enum</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="enum.html#jointindex-int">JointIndex (int Mapping)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="enum.html#cartindex">CartIndex</a></li>
+</ul>
+</li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Struct</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#realtimejointsparams">RealtimeJointsParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#realtimetcpparams">RealtimeTcpParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lineartarget">LinearTarget</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tcpposeparams">TcpPoseParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#movemessageparams">MoveMessageParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#errormessageparams">ErrorMessageParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#jointmotorcmd">JointMotorCmd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheelmotorcmd">WheelMotorCmd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lowcmd">LowCmd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#jointmotorstate">JointMotorState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#imustate">IMUState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheelmotorstate">WheelMotorState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pcustate">PCUState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enablestate">EnableState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lowstate">LowState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lrcucmd">LRCUCmd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lrcustate">LRCUState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bmsstate">BmsState</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="class.html">Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="class.html#h10wchassis">H10wChassis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="class.html#h10wmotion">H10wMotion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="class.html#h10wparams">H10wParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="class.html#h10wstatus">H10wStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="class.html#h10wsystem">H10wSystem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="class.html#h10wlowlevel">H10wLowLevel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="error.html">Error Code List</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../example/index.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../example/cpp.html">C++ Usage Example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../example/cpp.html#id1">Setup Environment Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../example/cpp.html#id2">Build a Simple Example</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../example/cpp.html#main-cpp">1. Create a cpp File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../example/cpp.html#cmakelists-txt">2. Create a CMakeLists.txt File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../example/cpp.html#id3">3. Build and Run Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../example/python.html">Python Usage Example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../example/python.html#id1">Setup Environment Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../example/python.html#id2">Build a Simple Example</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../example/python.html#example-py">1. Create a example.py File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../example/python.html#id3">2. Run the Example Program</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../trouble.html">common problems</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Theme Switching</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Sphinx RTD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../theme_furo/api_py/humanoid_h10w/struct.html">Furo</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">User Manual For H10-W SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Python interface description</a></li>
+          <li class="breadcrumb-item"><a href="index.html">humanoid_sdk_py.h10w module description</a></li>
+      <li class="breadcrumb-item active">Struct</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>Struct<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h1>
+<section id="realtimejointsparams">
+<h2>RealtimeJointsParams<a class="headerlink" href="#realtimejointsparams" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.RealtimeJointsParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">RealtimeJointsParams</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.RealtimeJointsParams" title="Permalink to this definition"></a></dt>
+<dd><p>Realtime joint motion control parameters structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>left_arm: 7 joint angles (rad) of the left arm</p></li>
+<li><p>left_arm_valid: Validity of left arm data, 1-execute, 0-hold</p></li>
+<li><p>right_arm: 7 joint angles (rad) of the right arm</p></li>
+<li><p>right_arm_valid: Validity of right arm data</p></li>
+<li><p>torso: 3 joint angles (rad) of the torso</p></li>
+<li><p>torso_valid: Validity of torso data</p></li>
+<li><p>time: Motion control cycle (seconds)</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="realtimetcpparams">
+<h2>RealtimeTcpParams<a class="headerlink" href="#realtimetcpparams" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.RealtimeTcpParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">RealtimeTcpParams</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.RealtimeTcpParams" title="Permalink to this definition"></a></dt>
+<dd><p>Realtime TCP motion control parameters structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>left_arm: TCP pose of left arm (x, y, z, rx, ry, rz) (m, rad)</p></li>
+<li><p>left_arm_valid: Validity of left arm data, 1-execute, 0-hold</p></li>
+<li><p>right_arm: TCP pose of right arm (x, y, z, rx, ry, rz) (m, rad)</p></li>
+<li><p>right_arm_valid: Validity of right arm data</p></li>
+<li><p>torso: TCP pose of torso (x, y, z, rx, ry, rz) (m, rad)</p></li>
+<li><p>torso_valid: Validity of torso data</p></li>
+<li><p>time: Motion control cycle (seconds)</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="lineartarget">
+<h2>LinearTarget<a class="headerlink" href="#lineartarget" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.LinearTarget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">LinearTarget</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.LinearTarget" title="Permalink to this definition"></a></dt>
+<dd><p>TCP linear motion control parameters structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>type: CartIndex enumeration type, 1-left arm 2-right arm 3-torso</p></li>
+<li><p>pose: 6-dimensional array [x, y, z, rx, ry, rz] (position and rotation)</p></li>
+<li><p>velocityPercent: Velocity percentage (0-1]</p></li>
+<li><p>accelerationPercent: Acceleration percentage (0-1]</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="tcpposeparams">
+<h2>TcpPoseParams<a class="headerlink" href="#tcpposeparams" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.TcpPoseParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">TcpPoseParams</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.TcpPoseParams" title="Permalink to this definition"></a></dt>
+<dd><p>TCP pose parameters structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>type: CartIndex enumeration type, 1-left arm 2-right arm 3-torso</p></li>
+<li><p>pose: 6-dimensional array [x, y, z, rx, ry, rz] (position and rotation)</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="movemessageparams">
+<h2>MoveMessageParams<a class="headerlink" href="#movemessageparams" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.MoveMessageParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">MoveMessageParams</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.MoveMessageParams" title="Permalink to this definition"></a></dt>
+<dd><p>Motion state parameters structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>state: Motion state, 0-Idle 1-Running 2-Paused 3-Error</p></li>
+<li><p>position: Position vector</p></li>
+<li><p>velocity: Velocity vector</p></li>
+<li><p>tcp_pose: TCP pose parameters vector</p></li>
+<li><p>task_id: Instruction task id, identifies the current instruction</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="errormessageparams">
+<h2>ErrorMessageParams<a class="headerlink" href="#errormessageparams" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.ErrorMessageParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">ErrorMessageParams</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.ErrorMessageParams" title="Permalink to this definition"></a></dt>
+<dd><p>Error message parameters structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>id: Error ID</p></li>
+<li><p>level: Error level</p></li>
+<li><p>module: Error module level, 1-Algorithm 2-Controller 3-Driver 4-Firmware</p></li>
+<li><p>error_code: Error code</p></li>
+<li><p>msg: Error message</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="jointmotorcmd">
+<h2>JointMotorCmd<a class="headerlink" href="#jointmotorcmd" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.JointMotorCmd">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">JointMotorCmd</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.JointMotorCmd" title="Permalink to this definition"></a></dt>
+<dd><p>Motor control command structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>mode: Control mode, 0-disabled 1-enabled</p></li>
+<li><p>op_mode: Operating mode, 0-hybrid position/force (arms + head) 1-synchronous position (elevator)</p></li>
+<li><p>q: Position (rad)</p></li>
+<li><p>dq: Velocity (rad/s)</p></li>
+<li><p>tau: Feedforward joint torque (Nm)</p></li>
+<li><p>kp: Joint stiffness</p></li>
+<li><p>kd: Joint damping</p></li>
+<li><p>reserved: Reserved fields</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="wheelmotorcmd">
+<h2>WheelMotorCmd<a class="headerlink" href="#wheelmotorcmd" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.WheelMotorCmd">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">WheelMotorCmd</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.WheelMotorCmd" title="Permalink to this definition"></a></dt>
+<dd><p>Wheel motor motion control command structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>mode: Control mode, 0-disabled 1-enabled</p></li>
+<li><p>op_mode: Operating mode, 2-synchronous velocity</p></li>
+<li><p>v: Wheel linear velocity, m/s</p></li>
+<li><p>reserved: Reserved fields</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="lowcmd">
+<h2>LowCmd<a class="headerlink" href="#lowcmd" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.LowCmd">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">LowCmd</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.LowCmd" title="Permalink to this definition"></a></dt>
+<dd><p>H10W low-level control command structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>joint_motor_cmd: Full-body joint motor commands</p></li>
+<li><p>wheel_motor_cmd: Wheel motor commands</p></li>
+<li><p>reserved: Reserved fields</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="jointmotorstate">
+<h2>JointMotorState<a class="headerlink" href="#jointmotorstate" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.JointMotorState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">JointMotorState</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.JointMotorState" title="Permalink to this definition"></a></dt>
+<dd><p>Motor state structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>mode: Control mode, 0-disabled 1-enabled</p></li>
+<li><p>op_mode: Operating mode, 0-hybrid position/force (arms + head), 1-synchronous position (elevator)</p></li>
+<li><p>q: Measured joint position, rad</p></li>
+<li><p>dq: Measured joint velocity, rad/s</p></li>
+<li><p>ddq: Measured joint acceleration, rad/s²</p></li>
+<li><p>cur: Motor current, A</p></li>
+<li><p>vol: Motor terminal voltage, V</p></li>
+<li><p>tau_est: Estimated joint torque, N·m</p></li>
+<li><p>temp: Motor temperatures (e.g. housing and winding), °C</p></li>
+<li><p>kp: Joint stiffness</p></li>
+<li><p>kd: Joint damping</p></li>
+<li><p>enable_state: Enable state, 1-enabled 0-disabled</p></li>
+<li><p>error_code: Error code</p></li>
+<li><p>brake_state: Brake state</p></li>
+<li><p>warning_code: Warning code</p></li>
+<li><p>reserved: Reserved fields</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="imustate">
+<h2>IMUState<a class="headerlink" href="#imustate" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.IMUState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">IMUState</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.IMUState" title="Permalink to this definition"></a></dt>
+<dd><p>IMU state structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>gyroscope: Gyroscope data (rad/s)</p></li>
+<li><p>accelerometer: Accelerometer data (m/s²)</p></li>
+<li><p>temp: IMU sensor temperature, °C</p></li>
+<li><p>error_code: Error code</p></li>
+<li><p>warning_code: Warning code</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="wheelmotorstate">
+<h2>WheelMotorState<a class="headerlink" href="#wheelmotorstate" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.WheelMotorState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">WheelMotorState</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.WheelMotorState" title="Permalink to this definition"></a></dt>
+<dd><p>Wheel motor state structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>mode: Control mode, 0-disabled 1-enabled</p></li>
+<li><p>op_mode: Operating mode, 2-synchronous velocity</p></li>
+<li><p>v: Wheel linear velocity, m/s</p></li>
+<li><p>tau_est: Wheel torque, N·m</p></li>
+<li><p>cur: Wheel current, A</p></li>
+<li><p>vol: Wheel voltage, V</p></li>
+<li><p>temp: Wheel temperature, °C</p></li>
+<li><p>enable_state: Enable state, 1-enabled 0-disabled</p></li>
+<li><p>error_code: Error code</p></li>
+<li><p>warning_code: Warning code</p></li>
+<li><p>reserved: Reserved fields</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="pcustate">
+<h2>PCUState<a class="headerlink" href="#pcustate" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.PCUState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">PCUState</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.PCUState" title="Permalink to this definition"></a></dt>
+<dd><p>PCU state structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>power_state: Power state, 0-standby 1-soft-start 2-powered-on 3-powered-off 4-error</p></li>
+<li><p>bumper_switch_state: Bumper switch, per channel: 0-collision 1-safe</p></li>
+<li><p>emergency_stop_state: Hardware E-stop, 0-active 1-safe</p></li>
+<li><p>soft_emergency_stop_state: Soft E-stop, 0-active 1-safe</p></li>
+<li><p>error_code: Error code</p></li>
+<li><p>warning_code: Warning code</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="enablestate">
+<h2>EnableState<a class="headerlink" href="#enablestate" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.EnableState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">EnableState</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.EnableState" title="Permalink to this definition"></a></dt>
+<dd><p>Enable state structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>upper_enable_state: Upper-body enable, 0-all disabled 1-all enabled 2-partially enabled</p></li>
+<li><p>base_enable_state: Powered-base enable, 0-disabled 1-enabled</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="lowstate">
+<h2>LowState<a class="headerlink" href="#lowstate" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.LowState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">LowState</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.LowState" title="Permalink to this definition"></a></dt>
+<dd><p>H10W low-level state structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>version: Version number</p></li>
+<li><p>tick: Timestamp (tick count)</p></li>
+<li><p>data_valid: Data valid flag, 0-none 1-partial 2-all valid</p></li>
+<li><p>joint_motor_state: Full-body joint motor states</p></li>
+<li><p>wheel_motor_state: Wheel motor states</p></li>
+<li><p>imu_state: IMU state</p></li>
+<li><p>pcu_state: Power control unit state</p></li>
+<li><p>enable_state: Enable state</p></li>
+<li><p>time_seconds: Elapsed time, s</p></li>
+<li><p>error_code: Error code</p></li>
+<li><p>warning_code: Warning code</p></li>
+<li><p>reserved: Reserved fields</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="lrcucmd">
+<h2>LRCUCmd<a class="headerlink" href="#lrcucmd" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.LRCUCmd">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">LRCUCmd</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.LRCUCmd" title="Permalink to this definition"></a></dt>
+<dd><p>Lamp ring control command structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>mode: Lamp ring enable control, 0-disabled 1-enabled</p></li>
+<li><p>led_r: RGB-R channel brightness (0-255)</p></li>
+<li><p>led_g: RGB-G channel brightness (0-255)</p></li>
+<li><p>led_b: RGB-B channel brightness (0-255)</p></li>
+<li><p>led_mode: LED mode</p></li>
+<li><p>led_frequency: LED blink/breathing frequency (Hz)</p></li>
+<li><p>reserved: Reserved fields</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="lrcustate">
+<h2>LRCUState<a class="headerlink" href="#lrcustate" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.LRCUState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">LRCUState</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.LRCUState" title="Permalink to this definition"></a></dt>
+<dd><p>Lamp ring state structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>mode: Lamp ring enable state, 0-disabled 1-enabled</p></li>
+<li><p>led_r: RGB-R channel brightness (0-255)</p></li>
+<li><p>led_g: RGB-G channel brightness (0-255)</p></li>
+<li><p>led_b: RGB-B channel brightness (0-255)</p></li>
+<li><p>led_mode: LED mode</p></li>
+<li><p>led_frequency: LED blink/breathing frequency (Hz)</p></li>
+<li><p>reserved: Reserved fields</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="bmsstate">
+<h2>BmsState<a class="headerlink" href="#bmsstate" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="humanoid_sdk_py.h10w.BmsState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">humanoid_sdk_py.h10w.</span></span><span class="sig-name descname"><span class="pre">BmsState</span></span><a class="headerlink" href="#humanoid_sdk_py.h10w.BmsState" title="Permalink to this definition"></a></dt>
+<dd><p>BMS battery state structure</p>
+<p>Field description:</p>
+<ul class="simple">
+<li><p>power_mode: Power supply mode</p></li>
+<li><p>charge_state: Charge state</p></li>
+<li><p>soc: Battery state of charge (0-100)</p></li>
+<li><p>reserved: Reserved fields</p></li>
+</ul>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="enum.html" class="btn btn-neutral float-left" title="Enum" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="class.html" class="btn btn-neutral float-right" title="Classes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025 Beijing Siling Robot Technology Co., Ltd..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+  
+   
+  ﻿<div id="doc-toolbar">
+  <label>
+    
+      Language:
+    
+  </label>
+  <select id="lang-switch">
+    
+      <option value="zh_CN"
+              data-href="/H10-W/v1.0.0/cpp/zh_CN/"
+              >
+        简体中文
+      </option>
+    
+      <option value="en"
+              data-href="/H10-W/v1.0.0/cpp/en/"
+              selected>
+        English
+      </option>
+    
+  </select>
+  |
+  <label>
+    
+      Version:
+    
+  </label>
+  <select id="ver-switch">
+    
+      <option value="latest"
+              
+              >
+        Latest
+      </option>
+    
+      <option value="v1.0.0"
+              data-href="/H10-W/v1.0.0/cpp/en/en/"
+              selected>
+        v1.0.0
+      </option>
+    
+  </select>
+</div>
+
+  
+
+
+</body>
+</html>

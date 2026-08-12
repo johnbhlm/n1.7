@@ -1,0 +1,81 @@
+类
+==============
+
+H10wChassis
+----------------------
+
+.. autoclass:: humanoid_sdk_py.h10w.H10wChassis
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :member-order: 
+
+
+H10wMotion
+----------------------
+
+.. autoclass:: humanoid_sdk_py.h10w.H10wMotion
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :member-order: 
+
+.. note::
+
+   **控制器模式说明**
+   
+   ``EnableController`` 用于选择机器人指令来源：启用后由机载控制器接管运动规划和电机指令下发；关闭后由用户通过底层接口直接写入电机命令。
+   
+   - **EnableController = true**: 控制器模式。适用于 ``H10wMotion``、``H10wChassis`` 等高级运动控制 API；控制器会持续向驱动器发送规划后的运动指令，用于速度、步态、底盘/全身运动等封装能力。此模式下不要同时通过低层接口写电机命令，避免指令源冲突。
+   - **EnableController = false**: 底层控制模式。适用于 ``H10wLowLevel`` 等直接电机控制接口；控制器停止下发运动指令，用户需要自行保证控制周期、关节目标、力矩/速度/位置限幅以及急停保护。
+   - **模式切换须知**: 调用高级运动 API 前先设置为 ``true`` 并通过 ``isControllerEnabled`` 确认；调用低层控制 API 前先停止高级运动任务，再设置为 ``false``。切换期间保持机器人处于稳定支撑状态，避免多个指令源同时控制同一关节。
+
+H10wParams
+----------------------
+
+.. autoclass:: humanoid_sdk_py.h10w.H10wParams
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :member-order: 
+
+
+H10wStatus
+----------------------
+
+.. autoclass:: humanoid_sdk_py.h10w.H10wStatus
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :member-order: 
+
+
+H10wSystem
+----------------------
+
+.. autoclass:: humanoid_sdk_py.h10w.H10wSystem
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :member-order: 
+
+
+H10wLowLevel
+----------------------
+
+.. autoclass:: humanoid_sdk_py.h10w.H10wLowLevel
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :member-order: 
+
+
+.. note::
+
+   **控制器模式说明**
+   
+   ``EnableController`` 用于选择机器人指令来源：启用后由机载控制器接管运动规划和电机指令下发；关闭后由用户通过底层接口直接写入电机命令。
+   
+   - **EnableController = true**: 控制器模式。适用于 ``H10wMotion``、``H10wChassis`` 等高级运动控制 API；控制器会持续向驱动器发送规划后的运动指令，用于速度、步态、底盘/全身运动等封装能力。此模式下不要同时通过低层接口写电机命令，避免指令源冲突。
+   - **EnableController = false**: 底层控制模式。适用于 ``H10wLowLevel`` 等直接电机控制接口；控制器停止下发运动指令，用户需要自行保证控制周期、关节目标、力矩/速度/位置限幅以及急停保护。
+   - **模式切换须知**: 调用高级运动 API 前先设置为 ``true`` 并通过 ``isControllerEnabled`` 确认；调用低层控制 API 前先停止高级运动任务，再设置为 ``false``。切换期间保持机器人处于稳定支撑状态，避免多个指令源同时控制同一关节。

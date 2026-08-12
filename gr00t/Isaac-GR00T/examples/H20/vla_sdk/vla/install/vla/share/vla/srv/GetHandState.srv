@@ -1,0 +1,11 @@
+# 请求
+string req_id
+---
+# 响应
+int32 result_code       # 0为成功，其它为错误码
+string result_msg       # 失败原因
+uint8 left_state        # 左手状态
+uint8 right_state       # 右手状态
+string left_item        # 左手物品
+string right_item       # 右手物品
+

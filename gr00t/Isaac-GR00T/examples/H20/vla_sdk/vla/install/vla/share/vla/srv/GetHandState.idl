@@ -1,0 +1,41 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from vla/visual_localization/srv/GetHandState.srv
+// generated code does not contain a copyright notice
+
+
+module vla {
+  module srv {
+    @verbatim (language="comment", text=
+      "请求")
+    struct GetHandState_Request {
+      string req_id;
+    };
+    @verbatim (language="comment", text=
+      "响应")
+    struct GetHandState_Response {
+      @verbatim (language="comment", text=
+        "0为成功，其它为错误码")
+      int32 result_code;
+
+      @verbatim (language="comment", text=
+        "失败原因")
+      string result_msg;
+
+      @verbatim (language="comment", text=
+        "左手状态")
+      uint8 left_state;
+
+      @verbatim (language="comment", text=
+        "右手状态")
+      uint8 right_state;
+
+      @verbatim (language="comment", text=
+        "左手物品")
+      string left_item;
+
+      @verbatim (language="comment", text=
+        "右手物品")
+      string right_item;
+    };
+  };
+};

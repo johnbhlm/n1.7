@@ -1,0 +1,56 @@
+// generated from rosidl_adapter/resource/action.idl.em
+// with input from vla/visual_localization/action/ActionVLA.action
+// generated code does not contain a copyright notice
+
+
+module vla {
+  module action {
+    @verbatim (language="comment", text=
+      "ActionVLA.action" "\n"
+      "此结构可以用于pick和place，pick和place的action节点名称不同")
+    struct ActionVLA_Goal {
+      @verbatim (language="comment", text=
+        "目标：VLA执行指令参数" "\n"
+        "请求ID")
+      string req_id;
+
+      @verbatim (language="comment", text=
+        "使用手（ 0:任意手，1:left_hand, 2:right_hand）")
+      int32 gripper;
+
+      @verbatim (language="comment", text=
+        "操作对象（如\"apple\"）")
+      string object;
+
+      @verbatim (language="comment", text=
+        "目标枚举类型：0-物品，1-人")
+      int32 target_type;
+
+      @verbatim (language="comment", text=
+        "位置描述")
+      string target_location;
+    };
+    @verbatim (language="comment", text=
+      "结果：执行完成返回信息")
+    struct ActionVLA_Result {
+      @verbatim (language="comment", text=
+        "0为成功，其它为错误码")
+      int32 result_code;
+
+      @verbatim (language="comment", text=
+        "失败原因")
+      string result_msg;
+    };
+    @verbatim (language="comment", text=
+      "反馈：执行过程实时状态")
+    struct ActionVLA_Feedback {
+      @verbatim (language="comment", text=
+        "进度（0.0~1.0）")
+      float progress;
+
+      @verbatim (language="comment", text=
+        "进度说明")
+      string feedback_msg;
+    };
+  };
+};

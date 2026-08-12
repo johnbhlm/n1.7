@@ -1,0 +1,244 @@
+结构体
+==============
+
+humanoid::h10w::RealtimeJointsParams
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::RealtimeJointsParams
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+   
+humanoid::h10w::RealtimeTcpParams
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::RealtimeTcpParams
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+humanoid::h10w::LinearTarget
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::LinearTarget
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+humanoid::h10w::TcpPoseParams
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::TcpPoseParams
+   :members:
+   :protected-members:
+   :private-members: 
+   :undoc-members:
+
+humanoid::h10w::MoveMessageParams
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::MoveMessageParams
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+humanoid::h10w::ErrorMessageParams
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::ErrorMessageParams
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+humanoid::h10w::JointMotorCmd
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::JointMotorCmd
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+humanoid::h10w::WheelMotorCmd
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::WheelMotorCmd
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+humanoid::h10w::JointMotorState
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::JointMotorState
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+humanoid::h10w::IMUState
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::IMUState
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+humanoid::h10w::WheelMotorState
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::WheelMotorState
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+humanoid::h10w::PCUState
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::PCUState
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+humanoid::h10w::EnableState
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::EnableState
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+humanoid::h10w::LowCmd
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::LowCmd
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+humanoid::h10w::LowState
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::LowState
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+humanoid::h10w::LRCUCmd
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::LRCUCmd
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+.. admonition:: 参数说明
+   :class: note
+
+   - **mode**：灯环使能控制
+
+     - 0：disable（禁用）
+     - 1：enable（启用）
+
+   - **led_r**：RGB-R 通道亮度
+
+     - 范围：0~255
+     - 0：最暗，255：最亮
+
+   - **led_g**：RGB-G 通道亮度
+
+     - 范围：0~255
+     - 0：最暗，255：最亮
+
+   - **led_b**：RGB-B 通道亮度
+
+     - 范围：0~255
+     - 0：最暗，255：最亮
+
+   - **led_mode**：LED 模式
+
+     - 0：常闭（off）
+     - 1：常亮（constant）
+     - 2：闪烁（blink）
+     - 3：呼吸（breathing）
+     - 4：眨眼（wink）
+     - 5：左闪（left flash）
+     - 6：右闪（right flash）
+     - 7：前闪（front flash）
+     - 8：后闪（rear flash）
+
+   - **led_frequency**：闪烁/呼吸周期
+
+     - 单位：ms
+
+humanoid::h10w::LRCUState
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::LRCUState
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+.. admonition:: 参数说明
+   :class: note
+
+   - **mode**：灯环使能状态
+
+     - 0：disable（禁用）
+     - 1：enable（启用）
+
+   - **led_r**：当前 RGB-R 通道亮度
+
+     - 范围：0~255
+     - 0：最暗，255：最亮
+
+   - **led_g**：当前 RGB-G 通道亮度
+
+     - 范围：0~255
+     - 0：最暗，255：最亮
+
+   - **led_b**：当前 RGB-B 通道亮度
+
+     - 范围：0~255
+     - 0：最暗，255：最亮
+
+   - **led_mode**：当前 LED 模式
+
+     - 0：常闭（off）
+     - 1：常亮（constant）
+     - 2：闪烁（blink）
+     - 3：呼吸（breathing）
+     - 4：眨眼（wink）
+     - 5：左闪（left flash）
+     - 6：右闪（right flash）
+     - 7：前闪（front flash）
+     - 8：后闪（rear flash）
+
+   - **led_frequency**：当前闪烁/呼吸周期
+
+     - 单位：ms
+
+humanoid::h10w::BmsState
+--------------------------------------
+.. doxygenstruct:: humanoid::h10w::BmsState
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+
+.. admonition:: 参数说明
+   :class: note
+
+   - **power_mode**：供电方式
+
+     - 0：外接电源
+     - 1：电池
+
+   - **charge_state**：充电状态
+
+     - 0：无效
+     - 1：充电
+     - 2：放电
+     - 3：静止
+
+   - **soc**：电池电量
+
+     - 范围：0~100%
+     - 无效时为 0
