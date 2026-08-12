@@ -1,19 +1,14 @@
 from __future__ import annotations
 
+from collections import deque
 import time
 
-import numpy as np
-
 from examples.H20.deploy.utils.async_runtime import AsyncChunkInferenceWorker
-from examples.H20.deploy.utils.blend_utils import (
-    apply_action_drop,
-    build_blended_action_chunk,
-)
-from examples.H20.deploy.utils.intra_chunk_smoothing import (
-    chunk_smoothness_metrics,
-    smooth_intra_chunk,
-)
+from examples.H20.deploy.utils.bezier_utils import build_latency_aware_bezier_chunk
+from examples.H20.deploy.utils.blend_utils import apply_action_drop, build_blended_action_chunk
+from examples.H20.deploy.utils.intra_chunk_smoothing import smooth_intra_chunk
 from examples.H20.robots.groot_h20_interface import GrootH20ModelClient as ModelClient
+import numpy as np
 
 
 def select_action_window(actions, action_horizon: int, drop_steps: int = 0):
@@ -41,14 +36,10 @@ def do_smooth_intra_chunk(actions, args):
     This helper does not inspect or combine previous chunks. It can therefore
     be enabled in synchronous mode without activating blend or GR00T RTC.
     """
-    if actions is None or not bool(
-        getattr(args, "enable_intra_chunk_smoothing", False)
-    ):
+    if actions is None or not bool(getattr(args, "enable_intra_chunk_smoothing", False)):
         return actions
 
-    method = str(
-        getattr(args, "intra_chunk_smoothing_method", "savgol")
-    ).strip().lower()
+    method = str(getattr(args, "intra_chunk_smoothing_method", "savgol")).strip().lower()
     if method != "savgol":
         raise ValueError(f"Unsupported intra-chunk smoothing method: {method!r}")
 
@@ -57,15 +48,9 @@ def do_smooth_intra_chunk(actions, args):
         original,
         window_length=int(getattr(args, "intra_chunk_smoothing_window", 5)),
         polyorder=int(getattr(args, "intra_chunk_smoothing_polyorder", 2)),
-        smooth_gripper=bool(
-            getattr(args, "intra_chunk_smoothing_smooth_gripper", False)
-        ),
-        preserve_first=bool(
-            getattr(args, "intra_chunk_smoothing_preserve_first", True)
-        ),
-        preserve_last=bool(
-            getattr(args, "intra_chunk_smoothing_preserve_last", True)
-        ),
+        smooth_gripper=bool(getattr(args, "intra_chunk_smoothing_smooth_gripper", False)),
+        preserve_first=bool(getattr(args, "intra_chunk_smoothing_preserve_first", True)),
+        preserve_last=bool(getattr(args, "intra_chunk_smoothing_preserve_last", True)),
     )
 
     # if bool(getattr(args, "intra_chunk_smoothing_debug", False)):
@@ -139,6 +124,8 @@ class AsyncRunner:
         self.executor = action_executor
         self.worker_model = None
         self.worker = None
+        self._executed_action_history = deque(maxlen=2)
+        self._actual_arm_history = deque(maxlen=2)
 
     def _transition_mode(self) -> str:
         return str(getattr(self.c.args, "chunk_transition_mode", "none")).lower()
@@ -149,13 +136,33 @@ class AsyncRunner:
     def _blend_enabled(self) -> bool:
         return self._transition_mode() == "blend"
 
+    def _latency_bezier_enabled(self) -> bool:
+        return self._transition_mode() == "latency_bezier"
+
+    def _reset_transition_history(self) -> None:
+        self._executed_action_history.clear()
+        self._actual_arm_history.clear()
+
+    def _record_executed_state(self, action) -> None:
+        self._executed_action_history.append(np.asarray(action, dtype=np.float32).copy())
+        actual = np.concatenate(
+            (
+                np.asarray(self.c.left_arm_joints, dtype=np.float32),
+                np.asarray(self.c.right_arm_joints, dtype=np.float32),
+            )
+        )
+        if actual.shape == (14,) and np.isfinite(actual).all():
+            self._actual_arm_history.append(actual.copy())
+
     def _model_client_kwargs(self) -> dict:
         args = self.c.args
         return {
             "host": args.host,
             "port": args.port,
             "image_size": list(args.resize_size),
-            "chunk_transition_mode": self._transition_mode(),
+            "chunk_transition_mode": (
+                "none" if self._latency_bezier_enabled() else self._transition_mode()
+            ),
             "action_horizon": int(args.action_horizon),
             "gr00t_rtc_overlap_steps": int(args.gr00t_rtc_overlap_steps),
             "gr00t_rtc_frozen_steps": int(args.gr00t_rtc_frozen_steps),
@@ -183,6 +190,8 @@ class AsyncRunner:
             self.worker_model = None
 
     def _mode_drop_steps(self) -> int:
+        if self._latency_bezier_enabled():
+            return 0
         if bool(getattr(self.c.args, "enable_action_drop", False)):
             return int(getattr(self.c.args, "drop_steps", 0))
         return 0
@@ -216,6 +225,7 @@ class AsyncRunner:
         next_start_index: int,
         elapsed_steps: int,
         inference_latency: float,
+        request_id: int | None = None,
     ):
         next_actions = select_action_window(
             raw_actions,
@@ -227,6 +237,35 @@ class AsyncRunner:
 
         mode = self._transition_mode()
         elapsed_steps = max(0, int(elapsed_steps))
+
+        if mode == "latency_bezier":
+            if elapsed_steps >= len(next_actions) or not self._executed_action_history:
+                return None
+            history = list(self._executed_action_history)
+            actual_history = list(self._actual_arm_history)
+            stitched, info = build_latency_aware_bezier_chunk(
+                next_actions,
+                stale_steps=elapsed_steps,
+                previous_executed_action=history[-2] if len(history) >= 2 else None,
+                current_executed_action=history[-1],
+                previous_actual_arm_state=(
+                    actual_history[-2] if len(actual_history) >= 2 else None
+                ),
+                current_actual_arm_state=(actual_history[-1] if actual_history else None),
+                gamma=float(getattr(self.c.args, "bezier_gamma", 0.15)),
+                sigma=float(getattr(self.c.args, "bezier_sigma", 0.25)),
+                use_actual_state=bool(getattr(self.c.args, "bezier_use_actual_state", True)),
+                gripper_dims=tuple(getattr(self.c.args, "bezier_gripper_dims", (7, 15))),
+            )
+            if bool(getattr(self.c.args, "bezier_debug", False)):
+                fields = " ".join(f"{key}={value}" for key, value in info.items())
+                print(
+                    "[LATENCY_BEZIER]",
+                    f"request_id={request_id}",
+                    f"model_latency={inference_latency:.4f}s",
+                    fields,
+                )
+            return stitched
 
         if mode == "gr00t_rtc":
             # GR00T has already fused the old tail into the new normalized chunk
@@ -268,9 +307,7 @@ class AsyncRunner:
             if elapsed_steps >= len(next_actions):
                 return None
             aligned_new = next_actions[elapsed_steps:].copy()
-            old_remaining = np.asarray(
-                current_actions[next_start_index:], dtype=np.float32
-            )
+            old_remaining = np.asarray(current_actions[next_start_index:], dtype=np.float32)
             args = self.c.args
             fused_actions = build_blended_action_chunk(
                 old_remaining=old_remaining,
@@ -326,11 +363,10 @@ class AsyncRunner:
         async_wait_timeout = float(getattr(args, "async_wait_timeout", 0.04))
 
         self._ensure_worker()
+        self._reset_transition_history()
         worker = self.worker
 
-        if self._gr00t_rtc_enabled() and bool(
-            getattr(args, "gr00t_rtc_reset_on_task_start", True)
-        ):
+        if self._gr00t_rtc_enabled() and bool(getattr(args, "gr00t_rtc_reset_on_task_start", True)):
             self._reset_model_state()
 
         example = self.obs.build(current_task)
@@ -398,14 +434,12 @@ class AsyncRunner:
                     self.close_worker()
                     return
 
+                self._record_executed_state(action)
+
                 if request_was_pending:
                     pending_elapsed_steps += 1
 
-                if (
-                    not prefetch_sent
-                    and pending_request_id is None
-                    and i >= prefetch_index
-                ):
+                if not prefetch_sent and pending_request_id is None and i >= prefetch_index:
                     next_example = self.obs.build(current_task)
                     if next_example is not None:
                         request_id += 1
@@ -415,9 +449,7 @@ class AsyncRunner:
                             prefetch_sent = True
 
                 if pending_request_id is not None:
-                    hit = worker.get_latest_matching_request(
-                        pending_request_id, task_epoch
-                    )
+                    hit = worker.get_latest_matching_request(pending_request_id, task_epoch)
                     if hit is not None:
                         _, got, latency = hit
                         next_actions = self._prepare_next_actions(
@@ -426,6 +458,7 @@ class AsyncRunner:
                             next_start_index=i + 1,
                             elapsed_steps=pending_elapsed_steps,
                             inference_latency=latency,
+                            request_id=pending_request_id,
                         )
                         pending_request_id = None
                         pending_elapsed_steps = 0
@@ -468,6 +501,7 @@ class AsyncRunner:
                         next_start_index=len(actions),
                         elapsed_steps=pending_elapsed_steps,
                         inference_latency=latency,
+                        request_id=pending_request_id,
                     )
                     pending_request_id = None
                     pending_elapsed_steps = 0

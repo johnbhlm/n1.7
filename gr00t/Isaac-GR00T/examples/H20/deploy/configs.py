@@ -7,6 +7,7 @@ import warnings
 @dataclasses.dataclass
 class DeployArgs:
     """CLI / runtime configuration for H20 keyboard deployment."""
+
     # # abs model
     # host: str = "10.8.26.6"
     # port: int = 5555
@@ -18,7 +19,7 @@ class DeployArgs:
     # #   async -> execute the current chunk while prefetching the next chunk
     # run_mode: str = "async" # sync  async
     # action_horizon: int = 32#16#24#16 #24 #16# not use rtc:24 20 16
-    # drop_steps: int = 6#10#not use rtc: 10 8 12 
+    # drop_steps: int = 6#10#not use rtc: 10 8 12
     # enable_action_drop: bool = True
     # prefetch_lead_steps: int =6#6 #24 #24#16#16 #14
     # async_wait_timeout: float = 0.2
@@ -59,7 +60,6 @@ class DeployArgs:
     # gr00t_rtc_debug: bool = False
     # gr00t_rtc_reset_on_task_start: bool = True
 
-
     # control_dt: float = 0.01
     # control_sleep: float = 0.04
     # cmd_time: float = 0.15
@@ -84,17 +84,17 @@ class DeployArgs:
     # Execution architecture:
     #   sync  -> blocking inference, then execute a chunk
     #   async -> execute the current chunk while prefetching the next chunk
-    run_mode: str = "async" # sync  async
-    action_horizon: int = 32#16#24#16 #24 #16# not use rtc:24 20 16
-    drop_steps: int = 6#10#not use rtc: 10 8 12 
+    run_mode: str = "async"  # sync  async
+    action_horizon: int = 32  # 16#24#16 #24 #16# not use rtc:24 20 16
+    drop_steps: int = 6  # 10#not use rtc: 10 8 12
     enable_action_drop: bool = True
-    prefetch_lead_steps: int =6#6 #24 #24#16#16 #14
+    prefetch_lead_steps: int = 6  # 6 #24 #24#16#16 #14
     async_wait_timeout: float = 0.2
     enable_async_fallback: bool = False
     async_queue_size: int = 2
 
     # Smooth model steps inside each decoded action chunk. This is independent
-    # of cross-chunk transition handling (none/blend/gr00t_rtc) and can first be
+    # of cross-chunk transition handling and can first be
     # tested with run_mode="sync" and chunk_transition_mode="none".
     enable_intra_chunk_smoothing: bool = True
     intra_chunk_smoothing_method: str = "savgol"
@@ -118,6 +118,13 @@ class DeployArgs:
     blend_gripper_dims: tuple[int, ...] = (7, 15)
     blend_debug: bool = False
 
+    # Latency-aware Bézier chunk stitching.
+    bezier_gamma: float = 0.15
+    bezier_sigma: float = 0.25
+    bezier_gripper_dims: tuple[int, ...] = (7, 15)
+    bezier_debug: bool = False
+    bezier_use_actual_state: bool = True
+
     # GR00T RTC options forwarded to PolicyClient.get_action(..., options=...).
     # The server-side Gr00tPolicy must preserve the previous normalized action
     # chunk and pass these options into model.get_action().
@@ -126,7 +133,6 @@ class DeployArgs:
     gr00t_rtc_ramp_rate: float = 1.0
     gr00t_rtc_debug: bool = False
     gr00t_rtc_reset_on_task_start: bool = True
-
 
     control_dt: float = 0.01
     control_sleep: float = 0.04
@@ -146,16 +152,14 @@ class DeployArgs:
     def __post_init__(self) -> None:
         self.run_mode = str(self.run_mode).strip().lower()
         self.chunk_transition_mode = str(self.chunk_transition_mode).strip().lower()
-        self.intra_chunk_smoothing_method = str(
-            self.intra_chunk_smoothing_method
-        ).strip().lower()
+        self.intra_chunk_smoothing_method = str(self.intra_chunk_smoothing_method).strip().lower()
 
         if self.run_mode not in {"sync", "async"}:
             raise ValueError(f"Unsupported run_mode={self.run_mode!r}; expected 'sync' or 'async'.")
-        if self.chunk_transition_mode not in {"none", "blend", "gr00t_rtc"}:
+        if self.chunk_transition_mode not in {"none", "blend", "gr00t_rtc", "latency_bezier"}:
             raise ValueError(
                 "Unsupported chunk_transition_mode="
-                f"{self.chunk_transition_mode!r}; expected none/blend/gr00t_rtc."
+                f"{self.chunk_transition_mode!r}; expected none/blend/gr00t_rtc/latency_bezier."
             )
         if self.run_mode != "async" and self.chunk_transition_mode != "none":
             raise ValueError(
@@ -165,6 +169,10 @@ class DeployArgs:
             raise ValueError("action_horizon must be positive.")
         if self.async_queue_size <= 0:
             raise ValueError("async_queue_size must be positive.")
+        if not 0.0 <= self.bezier_gamma < 1.0:
+            raise ValueError("bezier_gamma must satisfy 0.0 <= bezier_gamma < 1.0.")
+        if self.bezier_sigma < 0.0:
+            raise ValueError("bezier_sigma must be >= 0.0.")
 
         if self.intra_chunk_smoothing_method not in {"savgol"}:
             raise ValueError(
@@ -179,8 +187,7 @@ class DeployArgs:
             raise ValueError("intra_chunk_smoothing_polyorder must be >= 0.")
         if self.intra_chunk_smoothing_polyorder >= self.intra_chunk_smoothing_window:
             raise ValueError(
-                "intra_chunk_smoothing_polyorder must be smaller than "
-                "intra_chunk_smoothing_window."
+                "intra_chunk_smoothing_polyorder must be smaller than intra_chunk_smoothing_window."
             )
 
         self._validate_transition_window(
@@ -202,6 +209,18 @@ class DeployArgs:
             raise ValueError(
                 "GR00T RTC must keep the model chunk indices intact; disable action drop "
                 "or set drop_steps=0."
+            )
+
+        if (
+            self.chunk_transition_mode == "latency_bezier"
+            and self.enable_action_drop
+            and self.drop_steps > 0
+        ):
+            warnings.warn(
+                "fixed drop_steps is ignored in latency_bezier mode; dynamic "
+                "pending_elapsed_steps is used instead.",
+                RuntimeWarning,
+                stacklevel=2,
             )
 
         if self.chunk_transition_mode == "gr00t_rtc" and self.action_horizon < 32:
