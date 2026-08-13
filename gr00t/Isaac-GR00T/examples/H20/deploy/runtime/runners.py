@@ -7,6 +7,13 @@ from examples.H20.deploy.utils.async_runtime import AsyncChunkInferenceWorker
 from examples.H20.deploy.utils.bezier_utils import build_latency_aware_bezier_chunk
 from examples.H20.deploy.utils.blend_utils import apply_action_drop, build_blended_action_chunk
 from examples.H20.deploy.utils.intra_chunk_smoothing import smooth_intra_chunk
+from examples.H20.deploy.utils.nearest_utils import (
+    action_arm_state,
+    arm_position_cost,
+    build_nearest_action_chunk,
+    find_latency_aware_nearest_action,
+)
+from examples.H20.deploy.utils.transition_modes import server_transition_mode
 from examples.H20.robots.groot_h20_interface import GrootH20ModelClient as ModelClient
 import numpy as np
 
@@ -139,6 +146,9 @@ class AsyncRunner:
     def _latency_bezier_enabled(self) -> bool:
         return self._transition_mode() == "latency_bezier"
 
+    def _latency_nearest_enabled(self) -> bool:
+        return self._transition_mode() == "latency_nearest"
+
     def _reset_transition_history(self) -> None:
         self._executed_action_history.clear()
         self._actual_arm_history.clear()
@@ -160,9 +170,7 @@ class AsyncRunner:
             "host": args.host,
             "port": args.port,
             "image_size": list(args.resize_size),
-            "chunk_transition_mode": (
-                "none" if self._latency_bezier_enabled() else self._transition_mode()
-            ),
+            "chunk_transition_mode": server_transition_mode(self._transition_mode()),
             "action_horizon": int(args.action_horizon),
             "gr00t_rtc_overlap_steps": int(args.gr00t_rtc_overlap_steps),
             "gr00t_rtc_frozen_steps": int(args.gr00t_rtc_frozen_steps),
@@ -190,7 +198,7 @@ class AsyncRunner:
             self.worker_model = None
 
     def _mode_drop_steps(self) -> int:
-        if self._latency_bezier_enabled():
+        if self._transition_mode() in {"latency_bezier", "latency_nearest"}:
             return 0
         if bool(getattr(self.c.args, "enable_action_drop", False)):
             return int(getattr(self.c.args, "drop_steps", 0))
@@ -266,6 +274,90 @@ class AsyncRunner:
                     fields,
                 )
             return stitched
+
+        if mode == "latency_nearest":
+            if elapsed_steps >= len(next_actions) or not self._executed_action_history:
+                return None
+            history = list(self._executed_action_history)
+            actual_history = list(self._actual_arm_history)
+            args = self.c.args
+            landing, info = find_latency_aware_nearest_action(
+                next_actions,
+                stale_steps=elapsed_steps,
+                previous_executed_action=history[-2] if len(history) >= 2 else None,
+                current_executed_action=history[-1],
+                previous_actual_arm_state=(
+                    actual_history[-2] if len(actual_history) >= 2 else None
+                ),
+                current_actual_arm_state=(actual_history[-1] if actual_history else None),
+                search_window=int(getattr(args, "nearest_search_window", 6)),
+                velocity_weight=float(getattr(args, "nearest_velocity_weight", 0.0)),
+                index_penalty_weight=float(getattr(args, "nearest_index_penalty_weight", 0.0)),
+                use_actual_state=bool(getattr(args, "nearest_use_actual_state", True)),
+            )
+            if landing is None:
+                return None
+            output, transition_info = build_nearest_action_chunk(
+                next_actions,
+                landing_index=landing,
+                stale_steps=elapsed_steps,
+                transition=str(getattr(args, "nearest_transition", "auto")),
+                direct_threshold=float(getattr(args, "nearest_direct_threshold", 0.05)),
+                position_cost=float(info["position_cost"]),
+                bridge_steps=int(getattr(args, "nearest_bridge_steps", 0)),
+                current_executed_action=history[-1],
+                previous_executed_action=history[-2] if len(history) >= 2 else None,
+                current_actual_arm_state=(actual_history[-1] if actual_history else None),
+                previous_actual_arm_state=(
+                    actual_history[-2] if len(actual_history) >= 2 else None
+                ),
+                sigma=float(getattr(args, "bezier_sigma", 0.25)),
+                use_actual_state=bool(getattr(args, "nearest_use_actual_state", True)),
+                gripper_dims=tuple(getattr(args, "nearest_gripper_dims", (7, 15))),
+            )
+            if output is None:
+                return None
+            if bool(getattr(args, "nearest_debug", False)):
+                anchor = (
+                    actual_history[-1]
+                    if info["using_actual_state"]
+                    else action_arm_state(history[-1])
+                )
+                raw_jump = arm_position_cost(action_arm_state(next_actions[elapsed_steps]), anchor)[
+                    2
+                ]
+                nearest_jump = arm_position_cost(action_arm_state(next_actions[landing]), anchor)[2]
+                first_jump = arm_position_cost(action_arm_state(output[0]), anchor)[2]
+                print(
+                    "[LATENCY_NEAREST]",
+                    f"request_id={request_id}",
+                    f"latency={inference_latency:.4f}s",
+                    f"stale_steps={elapsed_steps}",
+                    f"raw_chunk_len={len(next_actions)}",
+                    f"search=[{info['search_start']}, {info['search_end'] - 1}]",
+                    f"landing_index={landing}",
+                    f"landing_offset={info['landing_offset_from_k']}",
+                    f"position_cost={info['position_cost']:.4f}",
+                    f"velocity_cost={info['velocity_cost']:.4f}",
+                    f"index_cost={info['index_cost']:.4f}",
+                    f"total_cost={info['total_cost']:.4f}",
+                    f"transition={transition_info['transition']}",
+                    f"bridge_steps={transition_info['bridge_steps']}",
+                    f"output_len={len(output)}",
+                    f"using_actual_state={info['using_actual_state']}",
+                    f"raw_k_jump={raw_jump:.4f}",
+                    f"nearest_jump={nearest_jump:.4f}",
+                    f"first_output_jump={first_jump:.4f}",
+                )
+                for candidate in info["candidates"]:
+                    marker = " <-" if candidate["index"] == landing else ""
+                    print(
+                        f"  idx={candidate['index']} pos={candidate['position_cost']:.4f} "
+                        f"total={candidate['total_cost']:.4f}{marker}"
+                    )
+                if int(getattr(args, "nearest_bridge_steps", 0)) > 0:
+                    print("[LATENCY_NEAREST][WARN] fixed bridge steps changes temporal length")
+            return output
 
         if mode == "gr00t_rtc":
             # GR00T has already fused the old tail into the new normalized chunk

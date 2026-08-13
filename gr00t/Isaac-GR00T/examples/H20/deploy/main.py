@@ -34,11 +34,11 @@ def parse_cli_args() -> Args:
     parser.add_argument(
         "--chunk-transition-mode",
         default=Args.chunk_transition_mode,
-        choices=["none", "blend", "gr00t_rtc", "latency_bezier"],
+        choices=["none", "blend", "gr00t_rtc", "latency_bezier", "latency_nearest"],
         help=(
             "none: plain async replacement; blend: client physical-space blend; "
             "gr00t_rtc: model-side GR00T RTC; latency_bezier: client-side stale "
-            "alignment and Bézier stitching"
+            "alignment and Bézier stitching; latency_nearest: latency-prior local nearest alignment"
         ),
     )
 
@@ -61,6 +61,32 @@ def parse_cli_args() -> Args:
         "--bezier-use-actual-state",
         action=argparse.BooleanOptionalAction,
         default=Args.bezier_use_actual_state,
+    )
+    parser.add_argument("--nearest-search-window", type=int, default=Args.nearest_search_window)
+    parser.add_argument(
+        "--nearest-velocity-weight", type=float, default=Args.nearest_velocity_weight
+    )
+    parser.add_argument(
+        "--nearest-index-penalty-weight", type=float, default=Args.nearest_index_penalty_weight
+    )
+    parser.add_argument(
+        "--nearest-transition",
+        default=Args.nearest_transition,
+        choices=["direct", "linear", "bezier", "auto"],
+    )
+    parser.add_argument(
+        "--nearest-direct-threshold", type=float, default=Args.nearest_direct_threshold
+    )
+    parser.add_argument("--nearest-bridge-steps", type=int, default=Args.nearest_bridge_steps)
+    parser.add_argument(
+        "--nearest-use-actual-state",
+        action=argparse.BooleanOptionalAction,
+        default=Args.nearest_use_actual_state,
+    )
+    parser.add_argument(
+        "--nearest-debug",
+        action=argparse.BooleanOptionalAction,
+        default=Args.nearest_debug,
     )
 
     parser.add_argument(
@@ -186,6 +212,14 @@ def parse_cli_args() -> Args:
         bezier_sigma=parsed.bezier_sigma,
         bezier_debug=parsed.bezier_debug,
         bezier_use_actual_state=parsed.bezier_use_actual_state,
+        nearest_search_window=parsed.nearest_search_window,
+        nearest_velocity_weight=parsed.nearest_velocity_weight,
+        nearest_index_penalty_weight=parsed.nearest_index_penalty_weight,
+        nearest_transition=parsed.nearest_transition,
+        nearest_direct_threshold=parsed.nearest_direct_threshold,
+        nearest_bridge_steps=parsed.nearest_bridge_steps,
+        nearest_use_actual_state=parsed.nearest_use_actual_state,
+        nearest_debug=parsed.nearest_debug,
         gr00t_rtc_overlap_steps=parsed.gr00t_rtc_overlap_steps,
         gr00t_rtc_frozen_steps=parsed.gr00t_rtc_frozen_steps,
         gr00t_rtc_ramp_rate=parsed.gr00t_rtc_ramp_rate,
