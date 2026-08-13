@@ -125,6 +125,17 @@ class DeployArgs:
     bezier_debug: bool = False
     bezier_use_actual_state: bool = True
 
+    # Latency-aware nearest-action alignment.
+    nearest_search_window: int = 6
+    nearest_velocity_weight: float = 0.0
+    nearest_index_penalty_weight: float = 0.0
+    nearest_transition: str = "auto"
+    nearest_direct_threshold: float = 0.05
+    nearest_bridge_steps: int = 0
+    nearest_use_actual_state: bool = True
+    nearest_gripper_dims: tuple[int, ...] = (7, 15)
+    nearest_debug: bool = False
+
     # GR00T RTC options forwarded to PolicyClient.get_action(..., options=...).
     # The server-side Gr00tPolicy must preserve the previous normalized action
     # chunk and pass these options into model.get_action().
@@ -153,13 +164,21 @@ class DeployArgs:
         self.run_mode = str(self.run_mode).strip().lower()
         self.chunk_transition_mode = str(self.chunk_transition_mode).strip().lower()
         self.intra_chunk_smoothing_method = str(self.intra_chunk_smoothing_method).strip().lower()
+        self.nearest_transition = str(self.nearest_transition).strip().lower()
 
         if self.run_mode not in {"sync", "async"}:
             raise ValueError(f"Unsupported run_mode={self.run_mode!r}; expected 'sync' or 'async'.")
-        if self.chunk_transition_mode not in {"none", "blend", "gr00t_rtc", "latency_bezier"}:
+        if self.chunk_transition_mode not in {
+            "none",
+            "blend",
+            "gr00t_rtc",
+            "latency_bezier",
+            "latency_nearest",
+        }:
             raise ValueError(
                 "Unsupported chunk_transition_mode="
-                f"{self.chunk_transition_mode!r}; expected none/blend/gr00t_rtc/latency_bezier."
+                f"{self.chunk_transition_mode!r}; expected "
+                "none/blend/gr00t_rtc/latency_bezier/latency_nearest."
             )
         if self.run_mode != "async" and self.chunk_transition_mode != "none":
             raise ValueError(
@@ -173,6 +192,21 @@ class DeployArgs:
             raise ValueError("bezier_gamma must satisfy 0.0 <= bezier_gamma < 1.0.")
         if self.bezier_sigma < 0.0:
             raise ValueError("bezier_sigma must be >= 0.0.")
+        if self.nearest_search_window < 0:
+            raise ValueError("nearest_search_window must be >= 0.")
+        if self.nearest_velocity_weight < 0.0:
+            raise ValueError("nearest_velocity_weight must be >= 0.0.")
+        if self.nearest_index_penalty_weight < 0.0:
+            raise ValueError("nearest_index_penalty_weight must be >= 0.0.")
+        if self.nearest_direct_threshold < 0.0:
+            raise ValueError("nearest_direct_threshold must be >= 0.0.")
+        if self.nearest_bridge_steps < 0:
+            raise ValueError("nearest_bridge_steps must be >= 0.")
+        if self.nearest_transition not in {"direct", "linear", "bezier", "auto"}:
+            raise ValueError(
+                f"Unsupported nearest_transition={self.nearest_transition!r}; "
+                "expected direct/linear/bezier/auto."
+            )
 
         if self.intra_chunk_smoothing_method not in {"savgol"}:
             raise ValueError(
@@ -219,6 +253,18 @@ class DeployArgs:
             warnings.warn(
                 "fixed drop_steps is ignored in latency_bezier mode; dynamic "
                 "pending_elapsed_steps is used instead.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+
+        if (
+            self.chunk_transition_mode == "latency_nearest"
+            and self.enable_action_drop
+            and self.drop_steps > 0
+        ):
+            warnings.warn(
+                "fixed drop_steps is ignored in latency_nearest mode; "
+                "pending_elapsed_steps is used for dynamic stale alignment.",
                 RuntimeWarning,
                 stacklevel=2,
             )

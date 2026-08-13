@@ -22,6 +22,82 @@ def _safe_normalize(vector, fallback=None, eps: float = 1e-8) -> np.ndarray:
     return np.zeros_like(vector)
 
 
+def build_joint_bezier_bridge(
+    *,
+    current_executed_action: np.ndarray,
+    previous_executed_action: np.ndarray | None,
+    current_actual_arm_state: np.ndarray | None,
+    previous_actual_arm_state: np.ndarray | None,
+    target_action: np.ndarray,
+    target_prev_action: np.ndarray,
+    target_next_action: np.ndarray,
+    bridge_steps: int,
+    sigma: float,
+    use_actual_state: bool = True,
+    gripper_dims: tuple[int, ...] = (7, 15),
+) -> tuple[np.ndarray, bool]:
+    """Build the shared low-level cubic bridge used by latency-aware modes."""
+    current_command = np.asarray(current_executed_action, dtype=np.float32)
+    previous_command = (
+        None
+        if previous_executed_action is None
+        else np.asarray(previous_executed_action, dtype=np.float32)
+    )
+    target = np.asarray(target_action, dtype=np.float32)
+    target_prev = np.asarray(target_prev_action, dtype=np.float32)
+    target_next = np.asarray(target_next_action, dtype=np.float32)
+    actual_valid = (
+        use_actual_state
+        and previous_actual_arm_state is not None
+        and current_actual_arm_state is not None
+        and np.asarray(previous_actual_arm_state).shape == (14,)
+        and np.asarray(current_actual_arm_state).shape == (14,)
+    )
+    previous_actual = (
+        np.asarray(previous_actual_arm_state, dtype=np.float32) if actual_valid else None
+    )
+    current_actual = (
+        np.asarray(current_actual_arm_state, dtype=np.float32) if actual_valid else None
+    )
+    bridge_steps = int(bridge_steps)
+    u_values = np.linspace(0.0, 1.0, bridge_steps + 1, dtype=np.float32)[1:]
+    bridge = np.repeat(target[None, :], bridge_steps, axis=0)
+
+    for action_slice, actual_slice in ((LEFT_ARM, slice(0, 7)), (RIGHT_ARM, slice(7, 14))):
+        if actual_valid:
+            hist_prev = previous_actual[actual_slice]
+            p0 = current_actual[actual_slice]
+        else:
+            p0 = current_command[action_slice]
+            hist_prev = p0 if previous_command is None else previous_command[action_slice]
+        p3 = target[action_slice]
+        direct = p3 - p0
+        d_hist = _safe_normalize(p0 - hist_prev, fallback=direct)
+        d_future = _safe_normalize(
+            target_next[action_slice] - target_prev[action_slice], fallback=direct
+        )
+        lam = float(sigma) * float(np.linalg.norm(direct))
+        p1 = p0 + lam * d_hist
+        p2 = p3 - lam * d_future
+        u = u_values[:, None]
+        bridge[:, action_slice] = (
+            (1.0 - u) ** 3 * p0
+            + 3.0 * (1.0 - u) ** 2 * u * p1
+            + 3.0 * (1.0 - u) * u**2 * p2
+            + u**3 * p3
+        )
+
+    for gripper_dim in gripper_dims:
+        if 0 <= gripper_dim < target.shape[0]:
+            bridge[:, gripper_dim] = np.linspace(
+                current_command[gripper_dim],
+                target[gripper_dim],
+                bridge_steps + 1,
+                dtype=np.float32,
+            )[1:]
+    return bridge, actual_valid
+
+
 def build_latency_aware_bezier_chunk(
     new_actions: np.ndarray,
     *,
@@ -47,67 +123,31 @@ def build_latency_aware_bezier_chunk(
     if retained_len < 3:
         return None, info
 
-    current_command = np.asarray(current_executed_action, dtype=np.float32)
-    previous_command = (
-        None
-        if previous_executed_action is None
-        else np.asarray(previous_executed_action, dtype=np.float32)
-    )
-    actual_valid = (
-        use_actual_state
-        and previous_actual_arm_state is not None
-        and current_actual_arm_state is not None
-        and np.asarray(previous_actual_arm_state).shape == (14,)
-        and np.asarray(current_actual_arm_state).shape == (14,)
-    )
-    previous_actual = (
-        np.asarray(previous_actual_arm_state, dtype=np.float32) if actual_valid else None
-    )
-    current_actual = (
-        np.asarray(current_actual_arm_state, dtype=np.float32) if actual_valid else None
-    )
-
     landing = int(np.floor(float(gamma) * retained_len))
     landing = int(np.clip(landing, 1, retained_len - 2))
     bridge_steps = landing + 1
-    u_values = np.linspace(0.0, 1.0, bridge_steps + 1, dtype=np.float32)[1:]
-    bridge = aligned[:bridge_steps].copy()
-
-    for action_slice, actual_slice in ((LEFT_ARM, slice(0, 7)), (RIGHT_ARM, slice(7, 14))):
-        if actual_valid:
-            hist_prev = previous_actual[actual_slice]
-            p0 = current_actual[actual_slice]
-        else:
-            p0 = current_command[action_slice]
-            hist_prev = p0 if previous_command is None else previous_command[action_slice]
-        p3 = aligned[landing, action_slice]
-        direct = p3 - p0
-        d_hist = _safe_normalize(p0 - hist_prev, fallback=direct)
-        future_delta = aligned[landing + 1, action_slice] - aligned[landing - 1, action_slice]
-        d_future = _safe_normalize(future_delta, fallback=direct)
-        lam = float(sigma) * float(np.linalg.norm(direct))
-        p1 = p0 + lam * d_hist
-        p2 = p3 - lam * d_future
-        u = u_values[:, None]
-        bridge[:, action_slice] = (
-            (1.0 - u) ** 3 * p0
-            + 3.0 * (1.0 - u) ** 2 * u * p1
-            + 3.0 * (1.0 - u) * u**2 * p2
-            + u**3 * p3
-        )
-
-    for gripper_dim in gripper_dims:
-        if 0 <= gripper_dim < actions.shape[1]:
-            bridge[:, gripper_dim] = np.linspace(
-                current_command[gripper_dim],
-                aligned[landing, gripper_dim],
-                bridge_steps + 1,
-                dtype=np.float32,
-            )[1:]
+    bridge, actual_valid = build_joint_bezier_bridge(
+        current_executed_action=current_executed_action,
+        previous_executed_action=previous_executed_action,
+        current_actual_arm_state=current_actual_arm_state,
+        previous_actual_arm_state=previous_actual_arm_state,
+        target_action=aligned[landing],
+        target_prev_action=aligned[landing - 1],
+        target_next_action=aligned[landing + 1],
+        bridge_steps=bridge_steps,
+        sigma=sigma,
+        use_actual_state=use_actual_state,
+        gripper_dims=gripper_dims,
+    )
 
     stitched = np.concatenate((bridge, aligned[landing + 1 :]), axis=0)
     arm_dims = np.r_[0:7, 8:15]
-    current_arm = current_actual if actual_valid else current_command[arm_dims]
+    current_command = np.asarray(current_executed_action, dtype=np.float32)
+    current_arm = (
+        np.asarray(current_actual_arm_state, dtype=np.float32)
+        if actual_valid
+        else current_command[arm_dims]
+    )
     info.update(
         landing_relative=landing,
         landing_raw=stale_steps + landing,

@@ -34,6 +34,7 @@ from examples.H20.robots.groot_h20_interface import GrootH20ModelClient as Model
 from examples.H20.deploy.runtime.observation import ObservationBuilder
 from examples.H20.deploy.runtime.action_executor import ActionExecutor
 from examples.H20.deploy.runtime.runners import SyncRunner, AsyncRunner
+from examples.H20.deploy.utils.transition_modes import server_transition_mode
 
 MOTOR_COUNT = 29
 
@@ -769,11 +770,7 @@ class H20VLA:
                 host=self.args.host,
                 port=self.args.port,
                 image_size=list(self.args.resize_size),
-                chunk_transition_mode=(
-                    "none"
-                    if self.args.chunk_transition_mode == "latency_bezier"
-                    else self.args.chunk_transition_mode
-                ),
+                chunk_transition_mode=server_transition_mode(self.args.chunk_transition_mode),
                 action_horizon=self.args.action_horizon,
                 gr00t_rtc_overlap_steps=self.args.gr00t_rtc_overlap_steps,
                 gr00t_rtc_frozen_steps=self.args.gr00t_rtc_frozen_steps,
