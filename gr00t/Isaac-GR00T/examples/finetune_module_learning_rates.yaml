@@ -1,0 +1,7 @@
+# Recommended discriminative learning rates for a GR00T N1.7 full finetune.
+# Pass this training mapping through the same config-loading path as other experiment settings.
+training:
+  learning_rate: 1.0e-4
+  module_learning_rates:
+    backbone: 1.0e-5
+    action_head: 1.0e-4

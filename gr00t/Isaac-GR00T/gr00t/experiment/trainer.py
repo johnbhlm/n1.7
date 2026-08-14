@@ -205,14 +205,100 @@ class Gr00tTrainer(Trainer):
         """
         self.action_offset = kwargs.pop("action_offset", None)
         self.multiprocessing_context = kwargs.pop("multiprocessing_context", "fork")
+        self.module_learning_rates = kwargs.pop("module_learning_rates", {})
         super().__init__(
             *args,
             **kwargs,
             # compute_metrics=partial(compute_eval_accuracy, action_offset=self.action_offset),
         )
 
+    def _learning_rate_for_parameter(self, name: str) -> tuple[str, float]:
+        """Return the most-specific configured module path and LR for ``name``."""
+        for module_path in sorted(self.module_learning_rates, key=len, reverse=True):
+            if name == module_path or name.startswith(f"{module_path}."):
+                return module_path, self.module_learning_rates[module_path]
+        return "base", self.args.learning_rate
+
+    def create_optimizer(self):
+        """Create Trainer-managed optimizer groups split by module LR and weight decay.
+
+        Keeping optimizer construction in ``Trainer``'s lifecycle lets Accelerate and DeepSpeed
+        wrap the resulting optimizer normally. With no overrides, delegate entirely to upstream
+        Transformers so legacy optimizer behavior remains unchanged.
+        """
+        if not self.module_learning_rates:
+            return super().create_optimizer()
+        if self.optimizer is not None:
+            return self.optimizer
+
+        optimizer_model = self.model
+        decay_parameters = set(self.get_decay_parameter_names(optimizer_model))
+        all_parameter_names = {name for name, _ in optimizer_model.named_parameters()}
+        matched_paths = {
+            path
+            for path in self.module_learning_rates
+            if any(name == path or name.startswith(f"{path}.") for name in all_parameter_names)
+        }
+        for path in self.module_learning_rates.keys() - matched_paths:
+            logging.warning(
+                "module_learning_rates path %r did not match any model parameter; "
+                "unmatched trainable parameters use the base learning rate.",
+                path,
+            )
+
+        grouped: dict[tuple[str, bool], list[torch.nn.Parameter]] = {}
+        for name, parameter in optimizer_model.named_parameters():
+            if not parameter.requires_grad:
+                continue
+            module_path, _ = self._learning_rate_for_parameter(name)
+            grouped.setdefault((module_path, name in decay_parameters), []).append(parameter)
+
+        optimizer_grouped_parameters = []
+        for (module_path, use_decay), parameters in grouped.items():
+            learning_rate = (
+                self.args.learning_rate
+                if module_path == "base"
+                else self.module_learning_rates[module_path]
+            )
+            optimizer_grouped_parameters.append(
+                {
+                    "params": parameters,
+                    "lr": learning_rate,
+                    "weight_decay": self.args.weight_decay if use_decay else 0.0,
+                    "group_name": f"{module_path}/{'decay' if use_decay else 'no_decay'}",
+                }
+            )
+
+        optimizer_cls, optimizer_kwargs = self.get_optimizer_cls_and_kwargs(
+            self.args, optimizer_model
+        )
+        # Some Trainer-supported optimizers receive the model or parameters through kwargs.
+        optimizer_kwargs.pop("params", None)
+        optimizer_kwargs.pop("model", None)
+        self.optimizer = optimizer_cls(optimizer_grouped_parameters, **optimizer_kwargs)
+        self._log_optimizer_groups()
+        return self.optimizer
+
+    def _log_optimizer_groups(self) -> None:
+        if not self.is_world_process_zero():
+            return
+        logging.info("Optimizer parameter groups:")
+        for group in self.optimizer.param_groups:
+            logging.info(
+                "  %s: lr=%.3e weight_decay=%.3e num_tensors=%d num_parameters=%d",
+                group["group_name"],
+                group["lr"],
+                group["weight_decay"],
+                len(group["params"]),
+                sum(parameter.numel() for parameter in group["params"]),
+            )
+
     def log(self, logs: dict[str, float], start_time: Optional[float] = None) -> None:
         # Hide epoch from logged metrics as it's misleading for Iterable datasets.
+        if "learning_rate" in logs and self.optimizer is not None:
+            for group in self.optimizer.param_groups:
+                module_path = group.get("group_name", "base/decay").split("/", 1)[0]
+                logs.setdefault(f"learning_rate/{module_path}", group["lr"])
         epoch = self.state.epoch
         self.state.epoch = None
         super().log(logs, start_time=start_time)
@@ -274,6 +360,12 @@ class Gr00tTrainer(Trainer):
 
         if resume_from_checkpoint is not None:
             logging.info(f"Resuming from checkpoint {resume_from_checkpoint}")
+            if self.module_learning_rates:
+                logging.warning(
+                    "Resuming requires the checkpoint optimizer parameter-group structure to "
+                    "match module_learning_rates. Start a fresh finetune run after changing "
+                    "module_learning_rates; Transformers will reject incompatible optimizer state."
+                )
             # In case of repeating the find_executable_batch_size, set `self._train_batch_size` properly
             self.state = TrainerState.load_from_json(
                 os.path.join(resume_from_checkpoint, TRAINER_STATE_NAME)
