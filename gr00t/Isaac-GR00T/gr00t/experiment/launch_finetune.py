@@ -41,6 +41,16 @@ def load_modality_config(modality_config_path: str):
         raise FileNotFoundError(f"Modality config path does not exist: {modality_config_path}")
 
 
+def apply_module_learning_rates(ft_config: FinetuneConfig, training_config) -> None:
+    """Apply optional module learning-rate overrides to the training config."""
+    module_learning_rates = {}
+    if ft_config.backbone_learning_rate is not None:
+        module_learning_rates["backbone"] = ft_config.backbone_learning_rate
+    if ft_config.action_head_learning_rate is not None:
+        module_learning_rates["action_head"] = ft_config.action_head_learning_rate
+    training_config.module_learning_rates = module_learning_rates
+
+
 if __name__ == "__main__":
     # Set LOGURU_LEVEL environment variable if not already set (default: INFO)
     if "LOGURU_LEVEL" not in os.environ:
@@ -97,6 +107,7 @@ if __name__ == "__main__":
     config.training.global_batch_size = ft_config.global_batch_size
     config.training.dataloader_num_workers = ft_config.dataloader_num_workers
     config.training.learning_rate = ft_config.learning_rate
+    apply_module_learning_rates(ft_config, config.training)
     config.training.gradient_accumulation_steps = ft_config.gradient_accumulation_steps
     config.training.output_dir = ft_config.output_dir
     config.training.save_steps = ft_config.save_steps

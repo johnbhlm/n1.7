@@ -108,6 +108,18 @@ class FinetuneConfig:
     learning_rate: float = 1e-4
     """Initial learning rate for optimizer."""
 
+    backbone_learning_rate: float | None = None
+    """Optional learning-rate override for model.backbone.* parameters.
+
+    If None, backbone parameters fall back to the base learning_rate.
+    """
+
+    action_head_learning_rate: float | None = None
+    """Optional learning-rate override for model.action_head.* parameters.
+
+    If None, action_head parameters fall back to the base learning_rate.
+    """
+
     gradient_accumulation_steps: int = 1
     """Number of forward passes to accumulate before performing a backward/update step."""
 
@@ -161,3 +173,16 @@ class FinetuneConfig:
     """If True, skip loading model weights from base_model_path (architecture only).
     The processor (tokenizer/config) is still loaded from base_model_path.
     Useful for CI/testing to skip the slow checkpoint shard loading."""
+
+    def __post_init__(self) -> None:
+        if self.backbone_learning_rate is not None and self.backbone_learning_rate <= 0:
+            raise ValueError(
+                "backbone_learning_rate must be greater than zero, "
+                f"got {self.backbone_learning_rate}"
+            )
+
+        if self.action_head_learning_rate is not None and self.action_head_learning_rate <= 0:
+            raise ValueError(
+                "action_head_learning_rate must be greater than zero, "
+                f"got {self.action_head_learning_rate}"
+            )
