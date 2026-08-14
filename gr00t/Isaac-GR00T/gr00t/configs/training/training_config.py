@@ -33,6 +33,9 @@ class TrainingConfig:
 
     # Optimization
     learning_rate: float = 1e-4
+    # Optional longest-prefix overrides for trainable model parameters. Parameters that do not
+    # match one of these module paths continue to use ``learning_rate``.
+    module_learning_rates: dict[str, float] = field(default_factory=dict)
     lr_scheduler_type: str = "cosine"
     weight_decay: float = 1e-5
     warmup_ratio: float = 0.05
@@ -125,3 +128,14 @@ class TrainingConfig:
 
     open_loop_eval_plot_indices: Optional[list[int]] = None
     """List of action indices to plot. If None, plots all indices."""
+
+    def __post_init__(self) -> None:
+        if self.learning_rate <= 0:
+            raise ValueError("training.learning_rate must be greater than zero")
+        for module_path, learning_rate in self.module_learning_rates.items():
+            if not isinstance(module_path, str) or not module_path.strip():
+                raise ValueError("module_learning_rates keys must be non-empty module paths")
+            if learning_rate <= 0:
+                raise ValueError(
+                    f"module_learning_rates[{module_path!r}] must be greater than zero"
+                )

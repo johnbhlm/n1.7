@@ -247,6 +247,7 @@ def run(config: Config):
         eval_dataset=eval_dataset,
         data_collator=data_collator,
         multiprocessing_context=config.data.multiprocessing_context,
+        module_learning_rates=config.training.module_learning_rates,
     )
 
     trainer.add_callback(
